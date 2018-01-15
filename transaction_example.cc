@@ -11,6 +11,10 @@
 #include <rocksdb/utilities/transaction.h>
 #include <rocksdb/utilities/transaction_db.h>
 
+#include <stdio.h>
+
+#include <iostream>
+
 using namespace rocksdb;
 
 std::string kDBPath = "/tmp/rocksdb_transaction_example";
@@ -62,6 +66,7 @@ int main() {
   delete txn;
 
   if (true) {
+    printf("exiting...\n");
     return 0;
   }
 
