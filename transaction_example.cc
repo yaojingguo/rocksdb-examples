@@ -61,6 +61,10 @@ int main() {
   assert(s.ok());
   delete txn;
 
+  if (true) {
+    return 0;
+  }
+
   ////////////////////////////////////////////////////////
   //
   // "Repeatable Read" (Snapshot Isolation) Example
