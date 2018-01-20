@@ -12,7 +12,6 @@
 #include <rocksdb/utilities/transaction_db.h>
 
 #include <stdio.h>
-
 #include <iostream>
 
 using namespace rocksdb;
@@ -64,11 +63,6 @@ int main() {
   s = txn->Commit();
   assert(s.ok());
   delete txn;
-
-  if (true) {
-    printf("exiting...\n");
-    return 0;
-  }
 
   ////////////////////////////////////////////////////////
   //
