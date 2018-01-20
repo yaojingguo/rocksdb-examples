@@ -72,6 +72,13 @@ int main() {
     std::cout << it->key().ToString() << ": " << it->value().ToString() << std::endl;
   }
 
+  std::cout << std::endl << "SeekForPrev: " << std::endl;
+  for (it->SeekForPrev("key8");
+       it->Valid() && it->key().ToString() > "key1";
+       it->Prev()) {
+    std::cout << it->key().ToString() << ": " << it->value().ToString() << std::endl;
+  }
+
 
   delete db;
   return 0;
