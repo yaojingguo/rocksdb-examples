@@ -1,22 +1,11 @@
-#include <stdio.h>
-#include <assert.h>
+#include <string>
+#include <iostream>
 
-class Person {
-public:
-  explicit Person(const char* name) {
-    this->name = name;
-  }
-private:
-  const char* name;
-};
+using namespace std;
 
-void foo(Person p) {
-
-}
-
-int main(int argc, char const *argv[]) {
-  Person p("xiaoyu");
-  foo(p);
-  foo("Yang Xu");
+int main(int argc, char *argv[]) {
+  string a("123");
+  string b("200");
+  cout <<  (a < b) << endl;
   return 0;
 }
