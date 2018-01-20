@@ -8,139 +8,72 @@
 #include <rocksdb/db.h>
 #include <rocksdb/options.h>
 #include <rocksdb/slice.h>
+#include <rocksdb/iterator.h>
 #include <rocksdb/utilities/transaction.h>
 #include <rocksdb/utilities/transaction_db.h>
 
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 using namespace rocksdb;
 
 std::string kDBPath = "/tmp/rocksdb_transaction_example";
 
 int main() {
-  // open DB
+  DB* db;
   Options options;
-  TransactionDBOptions txn_db_options;
+  // Optimize RocksDB. This is the easiest way to get RocksDB to perform well
+  options.IncreaseParallelism();
+  options.OptimizeLevelStyleCompaction();
+  // create the DB if it's not already present
   options.create_if_missing = true;
-  TransactionDB* txn_db;
 
-  Status s = TransactionDB::Open(options, txn_db_options, kDBPath, &txn_db);
+  // open DB
+  Status s = DB::Open(options, kDBPath, &db);
   assert(s.ok());
 
-  WriteOptions write_options;
-  ReadOptions read_options;
-  TransactionOptions txn_options;
-  std::string value;
+  int count = 9;
+  
+  for (int i = 0; i < count; i++) {
+    int idx = i + 1;
+    std::string key = "key" + std::to_string(idx);
+    std::string val = "val" + std::to_string(idx);
+    s = db->Put(WriteOptions(), key, val);
+    assert(s.ok());
+  }
 
-  ////////////////////////////////////////////////////////
-  //
-  // Simple Transaction Example ("Read Committed")
-  //
-  ////////////////////////////////////////////////////////
+  std::string val;
+  for (int i = 0; i < count; i++) {
+    int idx  = i + 1;
+    std::string key = "key" + std::to_string(idx);
+    s = db->Get(ReadOptions(), key, &val);
+    assert(s.ok());
+    std::cout << "key: " << key << ", val: " << val << std::endl;
+  }
 
-  // Start a transaction
-  Transaction* txn = txn_db->BeginTransaction(write_options);
-  assert(txn);
+  std::cout << std::endl << "SeekToFirst: "<< std::endl;
+  Iterator* it = db->NewIterator(ReadOptions());
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    std::cout << it->key().ToString() << ": " << it->value().ToString() << std::endl;
+  }
+  assert(it->status().ok());
 
-  // Read a key in this transaction
-  s = txn->Get(read_options, "abc", &value);
-  assert(s.IsNotFound());
+  std::cout << std::endl << "Seek: " << std::endl;
+  for (it->Seek("key2");
+       it->Valid() && it->key().ToString() < "key5";
+       it->Next()) {
+    std::cout << it->key().ToString() << ": " << it->value().ToString() << std::endl;
+  }
+  assert(it->status().ok());
 
-  // Write a key in this transaction
-  s = txn->Put("abc", "def");
-  assert(s.ok());
+  std::cout << std::endl << "SeekToLast: " << std::endl;
+  for (it->SeekToLast(); it->Valid(); it->Prev()) {
+    std::cout << it->key().ToString() << ": " << it->value().ToString() << std::endl;
+  }
 
-  // Read a key OUTSIDE this transaction. Does not affect txn.
-  s = txn_db->Get(read_options, "abc", &value);
 
-  // Write a key OUTSIDE of this transaction.
-  // Does not affect txn since this is an unrelated key.  If we wrote key 'abc'
-  // here, the transaction would fail to commit.
-  s = txn_db->Put(write_options, "xyz", "zzz");
-
-  // Commit transaction
-  s = txn->Commit();
-  assert(s.ok());
-  delete txn;
-
-  ////////////////////////////////////////////////////////
-  //
-  // "Repeatable Read" (Snapshot Isolation) Example
-  //   -- Using a single Snapshot
-  //
-  ////////////////////////////////////////////////////////
-
-  // Set a snapshot at start of transaction by setting set_snapshot=true
-  txn_options.set_snapshot = true;
-  txn = txn_db->BeginTransaction(write_options, txn_options);
-
-  const Snapshot* snapshot = txn->GetSnapshot();
-
-  // Write a key OUTSIDE of transaction
-  s = txn_db->Put(write_options, "abc", "xyz");
-  assert(s.ok());
-
-  // Attempt to read a key using the snapshot.  This will fail since
-  // the previous write outside this txn conflicts with this read.
-  read_options.snapshot = snapshot;
-  s = txn->GetForUpdate(read_options, "abc", &value);
-  assert(s.IsBusy());
-
-  txn->Rollback();
-
-  delete txn;
-  // Clear snapshot from read options since it is no longer valid
-  read_options.snapshot = nullptr;
-  snapshot = nullptr;
-
-  ////////////////////////////////////////////////////////
-  //
-  // "Read Committed" (Monotonic Atomic Views) Example
-  //   --Using multiple Snapshots
-  //
-  ////////////////////////////////////////////////////////
-
-  // In this example, we set the snapshot multiple times.  This is probably
-  // only necessary if you have very strict isolation requirements to
-  // implement.
-
-  // Set a snapshot at start of transaction
-  txn_options.set_snapshot = true;
-  txn = txn_db->BeginTransaction(write_options, txn_options);
-
-  // Do some reads and writes to key "x"
-  read_options.snapshot = txn_db->GetSnapshot();
-  s = txn->Get(read_options, "x", &value);
-  txn->Put("x", "x");
-
-  // Do a write outside of the transaction to key "y"
-  s = txn_db->Put(write_options, "y", "y");
-
-  // Set a new snapshot in the transaction
-  txn->SetSnapshot();
-  txn->SetSavePoint();
-  read_options.snapshot = txn_db->GetSnapshot();
-
-  // Do some reads and writes to key "y"
-  // Since the snapshot was advanced, the write done outside of the
-  // transaction does not conflict.
-  s = txn->GetForUpdate(read_options, "y", &value);
-  txn->Put("y", "y");
-
-  // Decide we want to revert the last write from this transaction.
-  txn->RollbackToSavePoint();
-
-  // Commit.
-  s = txn->Commit();
-  assert(s.ok());
-  delete txn;
-  // Clear snapshot from read options since it is no longer valid
-  read_options.snapshot = nullptr;
-
-  // Cleanup
-  delete txn_db;
-  DestroyDB(kDBPath, options);
+  delete db;
   return 0;
 }
 
