@@ -2,8 +2,8 @@
 
 int main(int argc, char const *argv[]) {
   char c = 10;
-  int *p = (int*) &c;
+  int *p = reinterpret_cast<int*>(&c);
   *p = 5;
-  
+
   return 0;
 }
