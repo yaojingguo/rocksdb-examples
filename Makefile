@@ -40,6 +40,9 @@ optimistic_transaction_example: librocksdb optimistic_transaction_example.cc
 transaction_example: librocksdb transaction_example.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
+prefix_seek_example: librocksdb prefix_seek_example.cc
+	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
+
 options_file_example: librocksdb options_file_example.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
