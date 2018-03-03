@@ -38,11 +38,10 @@ int main() {
   ReadOptions readOptions;
   readOptions.prefix_same_as_start = true;
   auto iter = db->NewIterator(readOptions);
-  for (iter->Seek("key2"); iter->Valid(); iter->Next())
-  {
+  for (iter->SeekToLast(); iter->Valid(); iter->Prev()) {
     std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
   }
-
+  delete iter;
   delete db;
   return 0;
 }
