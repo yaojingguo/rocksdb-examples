@@ -44,6 +44,7 @@ prefix_seek_example: librocksdb prefix_seek_example.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
 seek_example: librocksdb seek_example.cc
+	rm -fr /tmp/seek_example
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
 options_file_example: librocksdb options_file_example.cc

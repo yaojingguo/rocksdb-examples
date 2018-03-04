@@ -20,7 +20,6 @@ int main() {
   options.IncreaseParallelism();
   options.OptimizeLevelStyleCompaction();
   options.create_if_missing = true;
-  // options.prefix_extractor.reset(NewFixedPrefixTransform(3));
 
   Status s = DB::Open(options, kDBPath, &db);
   assert(s.ok());
@@ -33,12 +32,15 @@ int main() {
   assert(s.ok());
   s = db->Put(WriteOptions(), "key4", "value4");
   assert(s.ok());
-
+  s = db->Put(WriteOptions(), "key6", "value4");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "key8", "value4");
+  assert(s.ok());
 
   ReadOptions readOptions;
   readOptions.prefix_same_as_start = true;
   auto iter = db->NewIterator(readOptions);
-  for (iter->SeekToLast(); iter->Valid(); iter->Prev()) {
+  for (iter->SeekForPrev("key5"); iter->Valid(); iter->Next()) {
     std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
   }
   delete iter;
