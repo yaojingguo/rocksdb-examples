@@ -41,8 +41,7 @@ int main() {
   ReadOptions readOptions;
   readOptions.prefix_same_as_start = true;
   auto iter = db->NewIterator(readOptions);
-  for (iter->Seek("key2"); iter->Valid(); iter->Next())
-  {
+  for (iter->Seek("key2"); iter->Valid(); iter->Next()) {
     std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
   }
 
