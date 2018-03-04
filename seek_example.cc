@@ -70,10 +70,34 @@ void testRefresh(DB* db) {
   scan(iter);
 }
 
+class MyHandler: public rocksdb::WriteBatch::Handler {
+public:
+  virtual void Put(const Slice& key, const Slice& value) override {
+    std::cout << "Put: " << key.ToString() << ", " << value.ToString() << std::endl;
+  }
+  virtual void LogData(const Slice& blob) override {
+    std::cout << "LogData: " << blob.ToString() << std::endl;
+  }
+};
+
+void testLogData(DB* db) {
+  WriteBatch batch;
+  batch.Put("name1", "xiaoyu");
+  batch.PutLogData("logData1");
+  batch.Put("name2", "jingguo");
+  batch.Put("name3", "xuyang");
+  batch.PutLogData("logData2");
+  MyHandler handler;
+  batch.Iterate(&handler);
+  auto s = db->Write(WriteOptions(), &batch);
+  assert(s.ok());
+}
+
 int main() {
   DB* db = createDB();
   loadData(db);
-  testRefresh(db);
+  // testRefresh(db);
+  testLogData(db);
   delete db;
   return 0;
 }
