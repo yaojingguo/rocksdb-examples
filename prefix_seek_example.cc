@@ -25,18 +25,18 @@ int main() {
   Status s = DB::Open(options, kDBPath, &db);
   assert(s.ok());
 
-  // s = db->Put(WriteOptions(), "key1", "value1");
-  // assert(s.ok());
-  // s = db->Put(WriteOptions(), "key2", "value2");
-  // assert(s.ok());
-  // s = db->Put(WriteOptions(), "key3", "value3");
-  // assert(s.ok());
-  // s = db->Put(WriteOptions(), "key4", "value4");
-  // assert(s.ok());
-  // s = db->Put(WriteOptions(), "otherPrefix1", "otherValue1");
-  // assert(s.ok());
-  // s = db->Put(WriteOptions(), "abc", "abcvalue1");
-  // assert(s.ok());
+  s = db->Put(WriteOptions(), "key1", "value1");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "key2", "value2");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "key3", "value3");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "key4", "value4");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "otherPrefix1", "otherValue1");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "abc", "abcvalue1");
+  assert(s.ok());
 
   ReadOptions readOptions;
   readOptions.prefix_same_as_start = true;
