@@ -26,7 +26,7 @@ DB* createDB() {
   return db;
 }
 
-void loadData(DB* db) {
+void loadKeyPrefix(DB* db) {
   Status s = db->Put(WriteOptions(), "key1", "value1");
   assert(s.ok());
   s = db->Put(WriteOptions(), "key2", "value2");
@@ -43,6 +43,25 @@ void loadData(DB* db) {
   assert(s.ok());
   s = db->Put(WriteOptions(), "key8", "value8");
   assert(s.ok());
+}
+
+void loadKPrefix(DB* db) {
+  WriteBatch batch;
+  std::string keyPrefix = "k";
+  std::string valPrefix = "v";
+  for (int i = 0; i < 1000; i++) {
+    std::string no = std::to_string(i);
+    std::string key = keyPrefix + no;
+    std::string val = valPrefix + no;
+    batch.Put(key, val);
+  }
+  Status status = db->Write(WriteOptions(), &batch);
+  assert(status.ok());
+}
+  
+void loadData(DB* db) {
+  loadKeyPrefix(db);
+  loadKPrefix(db);
 }
 
 void testSeek(DB* db) {
