@@ -39,7 +39,8 @@ int main() {
   assert(s.ok());
 
   ReadOptions readOptions;
-  readOptions.prefix_same_as_start = true;
+  // readOptions.prefix_same_as_start = true;
+  readOptions.total_order_seek = true;
   auto iter = db->NewIterator(readOptions);
   for (iter->Seek("key2"); iter->Valid(); iter->Next()) {
     std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;

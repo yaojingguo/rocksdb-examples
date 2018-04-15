@@ -23,6 +23,7 @@ simple_example: librocksdb simple_example.cc
 	$(CC) $(CFLAGS) -c $< -o $@ -I../include
 
 prefix_seek_example: librocksdb prefix_seek_example.cc
+	rm -fr /tmp/prefix_seek_example
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
 seek_example: librocksdb seek_example.cc
