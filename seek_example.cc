@@ -35,8 +35,8 @@ void loadKeyPrefix(DB* db) {
   assert(s.ok());
   s = db->Put(WriteOptions(), "key4", "value4");
   assert(s.ok());
-  s = db->Put(WriteOptions(), "key5", "value5");
-  assert(s.ok());
+  // s = db->Put(WriteOptions(), "key5", "value5");
+  // assert(s.ok());
   s = db->Put(WriteOptions(), "key6", "value6");
   assert(s.ok());
   s = db->Put(WriteOptions(), "key7", "value7");
@@ -61,25 +61,57 @@ void loadKPrefix(DB* db) {
   
 void loadData(DB* db) {
   loadKeyPrefix(db);
-  loadKPrefix(db);
+  // loadKPrefix(db);
 }
 
 void testSeek(DB* db) {
+  std::cout << "Seek...\n";
   ReadOptions readOptions;
   auto iter = db->NewIterator(readOptions);
+  std::cout << "Next\n";
   for (iter->Seek("key5"); iter->Valid(); iter->Next()) {
+    std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
+  }
+  iter->Refresh();
+  std::cout << "Prev\n";
+  for (iter->Seek("key5"); iter->Valid(); iter->Prev()) {
     std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
   }
   delete iter;
 }
 
 void testSeekForPrev(DB* db) {
+  std::cout << "SeekForPrev...\n";
   ReadOptions readOptions;
   auto iter = db->NewIterator(readOptions);
+  std::cout << "Next\n";
   for (iter->SeekForPrev("key5"); iter->Valid(); iter->Next()) {
     std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
   }
+  iter->Refresh();
+  std::cout << "Prev\n";
+  for (iter->SeekForPrev("key5"); iter->Valid(); iter->Prev()) {
+    std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
+  }
   delete iter;
+}
+
+void testSeekOthers(DB* db) {
+  auto iter = db->NewIterator(ReadOptions());
+  std::cout << "SeekToFirst\n";
+  iter->SeekToFirst();
+  std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
+  iter->Refresh();
+  std::cout << "SeekToLast\n";
+  iter->SeekToLast();
+  std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
+}
+
+void testSeekOps(DB* db) {
+  testSeek(db);
+  testSeekForPrev(db);
+  testSeekOthers(db);
+  // testRefresh(db);
 }
 
 void scan(Iterator* iter) {
@@ -128,7 +160,7 @@ void testLogData(DB* db) {
 int main() {
   DB* db = createDB();
   loadData(db);
-  testSeek(db);
+  testSeekOps(db);
   // testRefresh(db);
   // testLogData(db);
   delete db;
