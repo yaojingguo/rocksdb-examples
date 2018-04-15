@@ -35,13 +35,26 @@ void loadData(DB* db) {
   assert(s.ok());
   s = db->Put(WriteOptions(), "key4", "value4");
   assert(s.ok());
+  s = db->Put(WriteOptions(), "key5", "value5");
+  assert(s.ok());
   s = db->Put(WriteOptions(), "key6", "value6");
+  assert(s.ok());
+  s = db->Put(WriteOptions(), "key7", "value7");
   assert(s.ok());
   s = db->Put(WriteOptions(), "key8", "value8");
   assert(s.ok());
 }
 
 void testSeek(DB* db) {
+  ReadOptions readOptions;
+  auto iter = db->NewIterator(readOptions);
+  for (iter->Seek("key5"); iter->Valid(); iter->Next()) {
+    std::cout << iter->key().ToString() << ": " << iter->value().ToString() << std::endl;
+  }
+  delete iter;
+}
+
+void testSeekForPrev(DB* db) {
   ReadOptions readOptions;
   auto iter = db->NewIterator(readOptions);
   for (iter->SeekForPrev("key5"); iter->Valid(); iter->Next()) {
@@ -96,8 +109,9 @@ void testLogData(DB* db) {
 int main() {
   DB* db = createDB();
   loadData(db);
+  testSeek(db);
   // testRefresh(db);
-  testLogData(db);
+  // testLogData(db);
   delete db;
   return 0;
 }
