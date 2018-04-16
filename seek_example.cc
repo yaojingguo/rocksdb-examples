@@ -58,7 +58,7 @@ void loadKPrefix(DB* db) {
   Status status = db->Write(WriteOptions(), &batch);
   assert(status.ok());
 }
-  
+
 void loadData(DB* db) {
   loadKeyPrefix(db);
   // loadKPrefix(db);
@@ -158,11 +158,15 @@ void testLogData(DB* db) {
 }
 
 int main() {
-  DB* db = createDB();
-  loadData(db);
-  testSeekOps(db);
-  // testRefresh(db);
-  // testLogData(db);
-  delete db;
+  const char* name = "yao";
+  Slice s(name, 3);
+  std::cout << s.data() << std::endl;
+  std::cout << s.size() << std::endl;
+  // DB* db = createDB();
+  // loadData(db);
+  // testSeekOps(db);
+  // // testRefresh(db);
+  // // testLogData(db);
+  // delete db;
   return 0;
 }
