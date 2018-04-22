@@ -1,6 +1,4 @@
-transaction_example
 a.out
 dc
 .DS_Store
-seek_example
-ingestion_example
+*_example
