@@ -30,6 +30,9 @@ seek_example: librocksdb seek_example.cc
 	rm -fr /tmp/seek_example
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
+ingestion_example: librocksdb ingestion_example.cc
+	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
+
 load: librocksdb load.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ -lrocksdb -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
